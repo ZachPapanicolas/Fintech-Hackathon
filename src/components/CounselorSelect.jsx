@@ -1,14 +1,17 @@
 import { counselors } from "../counselors";
 import "./CounselorSelect.css";
 
-export default function CounselorSelect({ onSelect }) {
+export default function CounselorSelect({ onSelect, onGroupChat }) {
   return (
     <div className="select-page">
       <div className="select-header">
         <h1 className="select-title">The Counsel</h1>
         <p className="select-subtitle">
-          Your personal finance crew — pick who you want to talk to.
+          Your personal finance crew — pick who you want to talk to, or ask them all at once.
         </p>
+        <button className="group-chat-btn" onClick={onGroupChat}>
+          Ask The Counsel →
+        </button>
       </div>
 
       <div className="counselor-grid">

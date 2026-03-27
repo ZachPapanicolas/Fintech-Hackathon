@@ -26,6 +26,23 @@
   margin: 0;
 }
 
+.group-chat-btn {
+  margin-top: 20px;
+  background: #1a1a1a;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 24px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.group-chat-btn:hover {
+  opacity: 0.75;
+}
+
 .counselor-grid {
   display: flex;
   gap: 24px;
