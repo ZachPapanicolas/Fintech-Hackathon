@@ -89,12 +89,25 @@ export default function Onboarding({ onComplete }) {
     }, typingDelay(message));
   }
 
+  function extractName(raw) {
+    return raw
+      .replace(/^(hey|hi|hello|yo|sup|hiya)[,!\s]*/i, "")
+      .replace(/^(it'?s|i'?m|my name is|the name'?s|call me|i am)\s*/i, "")
+      .replace(/[.,!?]+$/, "")
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2) // first + last name max
+      .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+      .join(" ");
+  }
+
   function submit() {
     const text = input.trim();
     if (!text || isTyping) return;
 
     const currentQ = QUESTIONS[step];
-    const newProfile = { ...profile, [currentQ.key]: text };
+    const value = currentQ.key === "name" ? extractName(text) || text : text;
+    const newProfile = { ...profile, [currentQ.key]: value };
     setProfile(newProfile);
     setInput("");
 
