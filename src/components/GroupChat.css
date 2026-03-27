@@ -65,7 +65,7 @@
   padding: 24px 24px 16px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 14px;
 }
 
 .system-msg {
@@ -73,80 +73,78 @@
   color: #999;
   font-size: 0.85rem;
   font-style: italic;
+  padding: 40px 0 20px;
 }
 
-.user-msg {
-  display: flex;
-  justify-content: flex-end;
-}
-
-.user-bubble {
+.topic-pill {
+  align-self: center;
   background: #1a1a1a;
   color: white;
-  padding: 12px 16px;
-  border-radius: 18px;
-  border-bottom-right-radius: 4px;
-  font-size: 0.95rem;
-  line-height: 1.5;
-  max-width: 480px;
+  font-size: 0.85rem;
+  font-style: italic;
+  padding: 8px 16px;
+  border-radius: 20px;
+  margin-bottom: 8px;
 }
 
-.panel-replies {
+.chat-msg {
   display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
-
-.panel-reply {
-  background: white;
-  border: 1.5px solid #ebebeb;
-  border-left: 4px solid var(--accent);
-  border-radius: 14px;
-  padding: 16px 18px;
-}
-
-.panel-reply-header {
-  display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
-  margin-bottom: 10px;
+  max-width: 600px;
 }
 
-.panel-avatar {
-  width: 38px;
-  height: 38px;
+.msg-avatar {
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-image: url("/mascots.png");
   background-size: 300% auto;
   background-repeat: no-repeat;
   background-color: var(--light);
   flex-shrink: 0;
+  margin-top: 2px;
 }
 
-.panel-name {
-  font-size: 0.95rem;
-  font-weight: 700;
-  color: #1a1a1a;
+.msg-body {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.panel-topic {
+.msg-name {
   font-size: 0.78rem;
+  font-weight: 700;
   color: var(--accent);
-  font-weight: 500;
+  padding-left: 4px;
 }
 
-.panel-content {
-  font-size: 0.92rem;
-  line-height: 1.6;
-  color: #333;
+.msg-bubble {
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 18px;
+  border-top-left-radius: 4px;
+  padding: 11px 15px;
+  font-size: 0.93rem;
+  line-height: 1.55;
+  color: #1a1a1a;
   white-space: pre-wrap;
+}
+
+.typing-row {
+  display: flex;
+  align-items: center;
+  padding-left: 8px;
 }
 
 .typing {
   display: flex;
   gap: 5px;
   align-items: center;
-  padding: 4px 0;
+  background: white;
+  border: 1px solid #ebebeb;
+  border-radius: 18px;
+  padding: 12px 16px;
 }
 
 .typing span {
@@ -191,6 +189,11 @@
 
 .chat-input:focus {
   border-color: #1a1a1a;
+}
+
+.chat-input:disabled {
+  background: #fafafa;
+  color: #aaa;
 }
 
 .send-btn {
