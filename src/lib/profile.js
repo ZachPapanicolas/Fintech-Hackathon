@@ -15,16 +15,19 @@ export function saveProfile(updates) {
 
 export function buildProfileContext(profile) {
   if (!profile || Object.keys(profile).length === 0) return "";
-  const lines = Object.entries(profile)
-    .map(([k, v]) => `- ${k}: ${v}`)
-    .join("\n");
-  return `\n\nHere's what you already know about this user from previous conversations:\n${lines}\nUse this to give more personalized, relevant responses. If you learn anything new about them (income, debt, goals, situation), remember it matters.`;
-}
 
-export function profileExtractionPrompt(messages) {
-  const convo = messages
-    .map((m) => `${m.role === "user" ? "User" : "Counselor"}: ${m.content}`)
+  const { name, onboarded, ...facts } = profile;
+  const firstName = name || "this person";
+
+  const lines = Object.entries(facts)
+    .map(([k, v]) => `- ${k.replace(/_/g, " ")}: ${v}`)
     .join("\n");
 
-  return `From this conversation, extract any personal financial details the user shared. Return a flat JSON object with keys like "name", "income", "monthly_expenses", "debt", "savings", "financial_goals", "job", "age", or any other relevant facts. Only include keys where the user actually shared info. If nothing new was shared, return {}.\n\nConversation:\n${convo}\n\nJSON only, no explanation.`;
+  return `
+
+IMPORTANT — You are talking to your friend ${firstName}. You know them well. Here is everything you know about them:
+${name ? `- name: ${name}` : ""}
+${lines}
+
+You care about ${firstName} genuinely. Use their name naturally. Reference what you know about their situation without being weird about it — like a friend who remembers, not a robot reading a file. Never ask them something you already know the answer to. If something has changed or they share something new, update your understanding. Their goals, stress, and situation matter to you.`;
 }
