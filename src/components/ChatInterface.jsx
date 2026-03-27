@@ -1,12 +1,10 @@
 import { useState, useRef, useEffect } from "react";
+import { getProfile, saveProfile, buildProfileContext } from "../lib/profile";
 import "./ChatInterface.css";
 
 export default function ChatInterface({ counselor, onBack }) {
   const [messages, setMessages] = useState([
-    {
-      role: "assistant",
-      content: getGreeting(counselor),
-    },
+    { role: "assistant", content: getGreeting(counselor) },
   ]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
@@ -15,6 +13,23 @@ export default function ChatInterface({ counselor, onBack }) {
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages, loading]);
+
+  async function extractAndSaveProfile(allMessages) {
+    try {
+      const convo = allMessages
+        .map((m) => `${m.role === "user" ? "User" : counselor.name}: ${m.content}`)
+        .join("\n");
+      const res = await fetch("http://localhost:3001/extract-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversation: convo }),
+      });
+      const data = await res.json();
+      if (Object.keys(data).length > 0) saveProfile(data);
+    } catch {
+      // silent — profile update is best-effort
+    }
+  }
 
   async function sendMessage() {
     const text = input.trim();
@@ -25,25 +40,25 @@ export default function ChatInterface({ counselor, onBack }) {
     setInput("");
     setLoading(true);
 
+    const profile = getProfile();
+    const profileContext = buildProfileContext(profile);
+    const systemPrompt = counselor.systemPrompt + profileContext;
+
     try {
       const response = await fetch("http://localhost:3001/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          systemPrompt: counselor.systemPrompt,
-          messages: newMessages,
-        }),
+        body: JSON.stringify({ systemPrompt, messages: newMessages }),
       });
 
       const data = await response.json();
-      setMessages([...newMessages, { role: "assistant", content: data.reply }]);
+      const finalMessages = [...newMessages, { role: "assistant", content: data.reply }];
+      setMessages(finalMessages);
+      extractAndSaveProfile(finalMessages);
     } catch {
       setMessages([
         ...newMessages,
-        {
-          role: "assistant",
-          content: "Hmm, something went wrong on my end. Try again?",
-        },
+        { role: "assistant", content: "Hmm, something went wrong on my end. Try again?" },
       ]);
     } finally {
       setLoading(false);
@@ -60,14 +75,9 @@ export default function ChatInterface({ counselor, onBack }) {
   return (
     <div className="chat-page" style={{ "--accent": counselor.color, "--light": counselor.lightColor }}>
       <div className="chat-header">
-        <button className="back-btn" onClick={onBack}>
-          ← The Counsel
-        </button>
+        <button className="back-btn" onClick={onBack}>← The Counsel</button>
         <div className="chat-header-info">
-          <div
-            className="chat-avatar"
-            style={{ backgroundPosition: counselor.imagePosition }}
-          />
+          <div className="chat-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
           <div>
             <div className="chat-name">{counselor.name}</div>
             <div className="chat-topic">{counselor.topic}</div>
@@ -79,20 +89,14 @@ export default function ChatInterface({ counselor, onBack }) {
         {messages.map((m, i) => (
           <div key={i} className={`message ${m.role}`}>
             {m.role === "assistant" && (
-              <div
-                className="message-avatar"
-                style={{ backgroundPosition: counselor.imagePosition }}
-              />
+              <div className="message-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
             )}
             <div className="message-bubble">{m.content}</div>
           </div>
         ))}
         {loading && (
           <div className="message assistant">
-            <div
-              className="message-avatar"
-              style={{ backgroundPosition: counselor.imagePosition }}
-            />
+            <div className="message-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
             <div className="message-bubble typing">
               <span /><span /><span />
             </div>
@@ -110,11 +114,7 @@ export default function ChatInterface({ counselor, onBack }) {
           placeholder={`Ask ${counselor.name} anything...`}
           rows={1}
         />
-        <button
-          className="send-btn"
-          onClick={sendMessage}
-          disabled={!input.trim() || loading}
-        >
+        <button className="send-btn" onClick={sendMessage} disabled={!input.trim() || loading}>
           Send
         </button>
       </div>

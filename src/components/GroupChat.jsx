@@ -1,19 +1,23 @@
 import { useState, useRef, useEffect } from "react";
 import { counselors } from "../counselors";
+import { getProfile, saveProfile, buildProfileContext } from "../lib/profile";
 import "./GroupChat.css";
 
-const TURNS = 5; // how many messages in the back-and-forth per topic
+const TURNS = 5;
 
 export default function GroupChat({ onBack }) {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
   const [topic, setTopic] = useState(null);
+  const [summary, setSummary] = useState(null);
+  const [summaryLoading, setSummaryLoading] = useState(false);
+  const [showSummary, setShowSummary] = useState(false);
   const bottomRef = useRef(null);
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading]);
+  }, [messages, loading, showSummary]);
 
   async function startConversation() {
     const text = input.trim();
@@ -23,20 +27,17 @@ export default function GroupChat({ onBack }) {
     setInput("");
     setLoading(true);
     setMessages([]);
+    setSummary(null);
+    setShowSummary(false);
 
-    const conversationHistory = []; // { name, content }[]
-
-    // Randomize who goes first, then cycle
+    const profile = getProfile();
+    const profileContext = buildProfileContext(profile);
+    const conversationHistory = [];
     const order = [...counselors].sort(() => Math.random() - 0.5);
 
     for (let i = 0; i < TURNS; i++) {
       const speaker = order[i % order.length];
-
-      // Build the message history for this speaker
-      const historyText = conversationHistory
-        .map((m) => `${m.name}: ${m.content}`)
-        .join("\n");
-
+      const historyText = conversationHistory.map((m) => `${m.name}: ${m.content}`).join("\n");
       const userMessage = conversationHistory.length === 0
         ? `Someone asked the group: "${text}"\n\nYou go first. What do you think?`
         : `Here's the conversation so far:\n\n${historyText}\n\nNow it's your turn to respond.`;
@@ -46,29 +47,58 @@ export default function GroupChat({ onBack }) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            systemPrompt: speaker.groupSystemPrompt,
+            systemPrompt: speaker.groupSystemPrompt + profileContext,
             messages: [{ role: "user", content: userMessage }],
           }),
         });
         const data = await res.json();
-        const reply = data.reply;
-
-        conversationHistory.push({ name: speaker.name, content: reply });
-
-        setMessages((prev) => [
-          ...prev,
-          { counselor: speaker, content: reply },
-        ]);
+        conversationHistory.push({ name: speaker.name, content: data.reply });
+        setMessages((prev) => [...prev, { counselor: speaker, content: data.reply }]);
       } catch {
         conversationHistory.push({ name: speaker.name, content: "..." });
-        setMessages((prev) => [
-          ...prev,
-          { counselor: speaker, content: "..." },
-        ]);
+        setMessages((prev) => [...prev, { counselor: speaker, content: "..." }]);
       }
     }
 
     setLoading(false);
+
+    // Auto-generate David's summary
+    const convoText = conversationHistory.map((m) => `${m.name}: ${m.content}`).join("\n");
+    generateSummary(convoText);
+
+    // Extract profile in background
+    extractProfile(convoText);
+  }
+
+  async function generateSummary(convoText) {
+    setSummaryLoading(true);
+    try {
+      const res = await fetch("http://localhost:3001/summarize", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversation: convoText }),
+      });
+      const data = await res.json();
+      setSummary(data.summary);
+    } catch {
+      setSummary("Couldn't conjure a summary this time. Sorry!");
+    } finally {
+      setSummaryLoading(false);
+    }
+  }
+
+  async function extractProfile(convoText) {
+    try {
+      const res = await fetch("http://localhost:3001/extract-profile", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ conversation: convoText }),
+      });
+      const data = await res.json();
+      if (Object.keys(data).length > 0) saveProfile(data);
+    } catch {
+      // silent
+    }
   }
 
   function handleKeyDown(e) {
@@ -77,6 +107,8 @@ export default function GroupChat({ onBack }) {
       startConversation();
     }
   }
+
+  const davidReady = !loading && (summary || summaryLoading) && messages.length > 0;
 
   return (
     <div className="group-page">
@@ -93,7 +125,39 @@ export default function GroupChat({ onBack }) {
           ))}
         </div>
         <div className="group-header-title">The Counsel — Group Chat</div>
+
+        {/* David button */}
+        {davidReady && (
+          <button
+            className={`david-btn ${showSummary ? "active" : ""}`}
+            onClick={() => setShowSummary((s) => !s)}
+            title="David's Summary"
+          >
+            <div className="david-avatar" />
+            <span>David</span>
+          </button>
+        )}
+        {(loading || summaryLoading) && messages.length > 0 && (
+          <div className="david-btn muted" title="David is writing...">
+            <div className="david-avatar" />
+            <span>...</span>
+          </div>
+        )}
       </div>
+
+      {/* David's summary panel */}
+      {showSummary && summary && (
+        <div className="david-panel">
+          <div className="david-panel-header">
+            <div className="david-avatar large" />
+            <div>
+              <div className="david-name">David</div>
+              <div className="david-title">Magical Scribe Mouse</div>
+            </div>
+          </div>
+          <div className="david-summary">{summary}</div>
+        </div>
+      )}
 
       <div className="group-messages">
         {messages.length === 0 && !loading && (
@@ -102,35 +166,25 @@ export default function GroupChat({ onBack }) {
           </div>
         )}
 
-        {topic && (
-          <div className="topic-pill">"{topic}"</div>
-        )}
+        {topic && <div className="topic-pill">"{topic}"</div>}
 
-        {messages.map((m, i) => {
-          const { counselor, content } = m;
-          return (
-            <div
-              key={i}
-              className="chat-msg"
-              style={{ "--accent": counselor.color, "--light": counselor.lightColor }}
-            >
-              <div
-                className="msg-avatar"
-                style={{ backgroundPosition: counselor.imagePosition }}
-              />
-              <div className="msg-body">
-                <div className="msg-name">{counselor.name}</div>
-                <div className="msg-bubble">{content}</div>
-              </div>
+        {messages.map((m, i) => (
+          <div
+            key={i}
+            className="chat-msg"
+            style={{ "--accent": m.counselor.color, "--light": m.counselor.lightColor }}
+          >
+            <div className="msg-avatar" style={{ backgroundPosition: m.counselor.imagePosition }} />
+            <div className="msg-body">
+              <div className="msg-name">{m.counselor.name}</div>
+              <div className="msg-bubble">{m.content}</div>
             </div>
-          );
-        })}
+          </div>
+        ))}
 
         {loading && (
           <div className="typing-row">
-            <div className="typing">
-              <span /><span /><span />
-            </div>
+            <div className="typing"><span /><span /><span /></div>
           </div>
         )}
 

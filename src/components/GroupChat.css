@@ -13,6 +13,100 @@
   background: white;
   border-bottom: 1px solid #ebebeb;
   flex-shrink: 0;
+  position: relative;
+}
+
+.group-header-title {
+  flex: 1;
+}
+
+/* David */
+.david-btn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: #f5f0ff;
+  border: 1.5px solid #c9b8f0;
+  border-radius: 20px;
+  padding: 6px 14px 6px 6px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #6b48c4;
+  transition: background 0.15s, box-shadow 0.15s;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.david-btn:hover {
+  background: #ede5ff;
+  box-shadow: 0 2px 8px rgba(107, 72, 196, 0.2);
+}
+
+.david-btn.active {
+  background: #6b48c4;
+  color: white;
+  border-color: #6b48c4;
+}
+
+.david-btn.muted {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.david-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background-image: url("/david-sheet.png");
+  background-size: 500% auto;
+  background-repeat: no-repeat;
+  background-position: 82% 5%;
+  background-color: #ede5ff;
+  flex-shrink: 0;
+}
+
+.david-avatar.large {
+  width: 44px;
+  height: 44px;
+}
+
+.david-panel {
+  background: #f5f0ff;
+  border-bottom: 2px solid #c9b8f0;
+  padding: 18px 24px;
+  flex-shrink: 0;
+  animation: slideDown 0.2s ease;
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.david-panel-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.david-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #6b48c4;
+}
+
+.david-title {
+  font-size: 0.75rem;
+  color: #9b80d4;
+}
+
+.david-summary {
+  font-size: 0.9rem;
+  line-height: 1.65;
+  color: #3d2a7a;
+  white-space: pre-wrap;
 }
 
 .back-btn {
