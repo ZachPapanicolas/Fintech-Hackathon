@@ -91,12 +91,13 @@ export default function Onboarding({ onComplete }) {
 
   function extractName(raw) {
     return raw
-      .replace(/^(hey|hi|hello|yo|sup|hiya)[,!\s]*/i, "")
+      .replace(/^(hey\s+there|hi\s+there|hello\s+there|hey|hi|hello|yo|sup|hiya)[,!\s]*/i, "")
       .replace(/^(it'?s|i'?m|my name is|the name'?s|call me|i am)\s*/i, "")
+      .replace(/\s*\bhere\b\s*$/i, "")
       .replace(/[.,!?]+$/, "")
       .trim()
       .split(/\s+/)
-      .slice(0, 2) // first + last name max
+      .slice(0, 2)
       .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
       .join(" ");
   }
