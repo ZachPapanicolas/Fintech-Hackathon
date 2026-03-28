@@ -39,8 +39,8 @@
 }
 
 .chat-avatar {
-  width: 44px;
-  height: 44px;
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
   background-image: url("/mascots.png");
   background-size: 300% auto;
@@ -87,8 +87,8 @@
 }
 
 .message-avatar {
-  width: 36px;
-  height: 36px;
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
   background-image: url("/mascots.png");
   background-size: 300% auto;

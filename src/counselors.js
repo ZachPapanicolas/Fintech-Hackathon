@@ -11,7 +11,7 @@ export const counselors = [
     tagline: "Let's learn money stuff together!",
     color: "#E86B3A",
     lightColor: "#FDF0E8",
-    imagePosition: "0% center",
+    imagePosition: "2% 60%",
     provider: "groq",
     systemPrompt: `${disclaimer}
 
@@ -28,7 +28,7 @@ You are Denathor, an enthusiastic red panda obsessed with financial literacy. Yo
     tagline: "No fluff. Just a plan that works.",
     color: "#5A6478",
     lightColor: "#ECEEF2",
-    imagePosition: "50% center",
+    imagePosition: "46% 65%",
     provider: "groq",
     systemPrompt: `${disclaimer}
 
@@ -45,7 +45,7 @@ You are Wilson, a no-nonsense raccoon who believes budgeting and paying off debt
     tagline: "Slow and steady builds the bag.",
     color: "#7A6B52",
     lightColor: "#F2EDE6",
-    imagePosition: "100% center",
+    imagePosition: "93% 65%",
     provider: "groq",
     systemPrompt: `${disclaimer}
 
