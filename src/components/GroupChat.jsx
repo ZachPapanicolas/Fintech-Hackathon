@@ -44,20 +44,27 @@ export default function GroupChat({ onBack }) {
         : `Here's the conversation so far:\n\n${historyText}\n\nNow it's your turn to respond.`;
 
       try {
+        const controller = new AbortController();
+        const timeout = setTimeout(() => controller.abort(), 30000);
         const res = await fetch("http://localhost:3001/chat", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
           body: JSON.stringify({
             systemPrompt: speaker.groupSystemPrompt + profileContext,
             messages: [{ role: "user", content: userMessage }],
           }),
         });
+        clearTimeout(timeout);
         const data = await res.json();
+        if (!data.reply) throw new Error(data.error || "No reply");
         conversationHistory.push({ name: speaker.name, content: data.reply });
         setMessages((prev) => [...prev, { counselor: speaker, content: data.reply }]);
-      } catch {
-        conversationHistory.push({ name: speaker.name, content: "..." });
-        setMessages((prev) => [...prev, { counselor: speaker, content: "..." }]);
+      } catch (err) {
+        console.error(`${speaker.name} failed:`, err.message);
+        const errMsg = err.name === "AbortError" ? "(timed out)" : "(couldn't reach server)";
+        conversationHistory.push({ name: speaker.name, content: errMsg });
+        setMessages((prev) => [...prev, { counselor: speaker, content: errMsg }]);
       }
     }
 
