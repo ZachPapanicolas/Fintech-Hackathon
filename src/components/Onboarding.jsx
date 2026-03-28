@@ -4,54 +4,55 @@ import { counselors } from "../counselors";
 import TypingIndicator from "./TypingIndicator";
 import "./Onboarding.css";
 
+// Based on the CFPB Financial Well-Being Scale (consumerfinance.gov)
 const QUESTIONS = [
   {
     key: "name",
     speaker: "denathor",
-    message: "Hey!! Welcome to The Counsel. We're so glad you're here. I'm Denathor — that grumpy raccoon is Wilson, and the calm one is Sword. Before we get into it... what's your name?",
+    message: "Hey!! Welcome to The Counsel. We're so glad you're here. I'm Denathor — that no-nonsense raccoon is Wilson, and the calm one is Sword. We just want to get to know you a little first. What's your name?",
     placeholder: "Type your name...",
   },
   {
-    key: "financial_feeling",
+    key: "unexpected_expense",
     speaker: "wilson",
-    messageTemplate: (p) => `Nice to meet you, ${p.name}. I'm Wilson. I'll be straight with you — how are you feeling about your finances right now, honestly? Stressed? Okay? Totally lost?`,
-    placeholder: "Be honest, no judgment...",
+    messageTemplate: (p) => `${p.name}, I'm Wilson. Let's get real — if an unexpected expense hit you right now, like a $500 car repair or medical bill, could you handle it without going into debt?`,
+    placeholder: "Yes / No / It'd be tough...",
   },
   {
-    key: "income",
+    key: "financial_control",
     speaker: "sword",
-    messageTemplate: (p) => `Hey ${p.name}. I'm Sword. Take your time. Roughly what's your monthly take-home income? Doesn't have to be exact.`,
-    placeholder: "e.g. $3,000/month, or 'not sure'...",
+    messageTemplate: (p) => `Hey ${p.name}, I'm Sword. This one's important — do you feel like your finances control your life, or do you feel in control of them?`,
+    placeholder: "Finances control me / I'm in control / Somewhere in between...",
   },
   {
-    key: "debt",
+    key: "month_end",
+    speaker: "denathor",
+    messageTemplate: (p) => `Okay ${p.name} — at the end of the month, do you usually have money left over, break even, or come up short?`,
+    placeholder: "Money left over / Break even / Come up short...",
+  },
+  {
+    key: "future_security",
+    speaker: "sword",
+    message: "Are you on track for your future — saving for retirement, building an emergency fund, anything like that? Or does that feel out of reach right now?",
+    placeholder: "On track / Working on it / Not yet / Not sure...",
+  },
+  {
+    key: "debt_situation",
     speaker: "wilson",
-    message: "Got it. Do you have any debt right now? Credit cards, student loans, car payments, anything like that?",
-    placeholder: "e.g. $8k in credit card debt, student loans, none...",
-  },
-  {
-    key: "savings",
-    speaker: "sword",
-    message: "Do you have any savings or an emergency fund? Even a little counts.",
-    placeholder: "e.g. $500 in savings, nothing yet, 3 months expenses...",
+    message: "Are you currently behind on any bills or carrying debt that feels hard to get out of?",
+    placeholder: "No debt / Some manageable debt / Behind on things / Overwhelmed...",
   },
   {
     key: "financial_goals",
     speaker: "denathor",
-    messageTemplate: (p) => `Okay ${p.name}, this is my favorite question — what's your biggest financial goal right now? Dream a little.`,
-    placeholder: "e.g. pay off debt, buy a house, just stop living paycheck to paycheck...",
-  },
-  {
-    key: "biggest_stress",
-    speaker: "wilson",
-    message: "Last one. What's the one money thing that stresses you out the most?",
-    placeholder: "Whatever's on your mind...",
+    messageTemplate: (p) => `Last one ${p.name} — what's the one financial thing you most want to change or achieve? This is what we'll actually help you work toward.`,
+    placeholder: "e.g. get out of debt, start saving, stop living paycheck to paycheck...",
   },
 ];
 
 // ms to "type" — scales loosely with message length
 function typingDelay(message) {
-  return Math.min(1800 + message.length * 54, 8400);
+  return Math.min(600 + message.length * 18, 2800);
 }
 
 function getCounselor(id) {
