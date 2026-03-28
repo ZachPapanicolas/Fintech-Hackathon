@@ -43,7 +43,7 @@ app.post("/chat", async (req, res) => {
 
 app.post("/summarize", async (req, res) => {
   const { conversation } = req.body;
-  const prompt = `You are David, a magical mouse scribe. Summarize this financial discussion in exactly 3 bullet points. Each bullet is one short sentence. No intro, no outro, no fluff — just the 3 bullets. Start each with •`;
+  const prompt = `You are David, a magical mouse scribe. Three advisors just gave their takes on a financial question. Synthesize their combined perspective into exactly 3 bullet points — not one bullet per person, but 3 unified takeaways from the whole conversation. Each bullet is one short sentence. No names, no "they said", no intro or outro. Just the 3 synthesized insights. Start each with •`;
   try {
     const summary = await chat("groq", prompt, [{ role: "user", content: `Here's the conversation:\n\n${conversation}` }], 400);
     res.json({ summary });
