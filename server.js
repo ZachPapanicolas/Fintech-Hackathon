@@ -55,22 +55,27 @@ app.post("/summarize", async (req, res) => {
 app.post("/extract-profile", async (req, res) => {
   const { conversation } = req.body;
   try {
-    const groqClient = new Groq({ apiKey: process.env.GROQ_API_KEY });
-    const completion = await groqClient.chat.completions.create({
+    const completion = await groq.chat.completions.create({
       model: "llama-3.3-70b-versatile",
       messages: [
         {
           role: "system",
-          content: `Extract personal financial details from this conversation. Return ONLY a flat JSON object with keys like "name", "income", "monthly_expenses", "debt", "savings", "financial_goals", "job", "age". Only include keys where the user actually provided info. If nothing was shared, return {}.`,
+          content: `You are extracting memory from a conversation to help an AI remember a user like a close friend would.
+
+Return a JSON object with two keys:
+1. "facts": a flat object of factual details the user shared — financial (income, debt, savings, goals, job, age) AND personal (family, relationships, hobbies, stressors, life events, personality traits, things they care about). Only include keys where the user actually shared something. Use short snake_case keys.
+2. "notes": an array of short, first-person-style memory notes capturing anything meaningful, personal, or emotionally relevant the user revealed. Write them as things a friend would remember, e.g. "Mentioned her mom keeps asking about her savings", "Seems anxious about job security", "Excited about a trip she's planning". Max 5 notes. Empty array if nothing notable.
+
+If nothing meaningful was shared, return {"facts": {}, "notes": []}.`,
         },
         { role: "user", content: conversation },
       ],
-      max_tokens: 300,
+      max_tokens: 500,
       response_format: { type: "json_object" },
     });
     res.json(JSON.parse(completion.choices[0].message.content));
   } catch {
-    res.json({});
+    res.json({ facts: {}, notes: [] });
   }
 });
 

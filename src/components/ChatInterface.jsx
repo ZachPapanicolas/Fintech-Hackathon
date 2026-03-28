@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { getProfile, saveProfile, buildProfileContext } from "../lib/profile";
+import { getProfile, getNotes, saveProfile, addNotes, buildProfileContext } from "../lib/profile";
 import TypingIndicator from "./TypingIndicator";
 import "./ChatInterface.css";
 
@@ -26,9 +26,10 @@ export default function ChatInterface({ counselor, onBack }) {
         body: JSON.stringify({ conversation: convo }),
       });
       const data = await res.json();
-      if (Object.keys(data).length > 0) saveProfile(data);
+      if (data.facts && Object.keys(data.facts).length > 0) saveProfile(data.facts);
+      if (data.notes && data.notes.length > 0) addNotes(data.notes);
     } catch {
-      // silent — profile update is best-effort
+      // silent
     }
   }
 
@@ -42,8 +43,8 @@ export default function ChatInterface({ counselor, onBack }) {
     setLoading(true);
 
     const profile = getProfile();
-    const profileContext = buildProfileContext(profile);
-    const systemPrompt = counselor.systemPrompt + profileContext;
+    const notes = getNotes();
+    const systemPrompt = counselor.systemPrompt + buildProfileContext(profile, notes);
 
     try {
       const response = await fetch("http://localhost:3001/chat", {

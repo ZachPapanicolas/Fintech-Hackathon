@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { counselors } from "../counselors";
-import { getProfile, saveProfile, buildProfileContext } from "../lib/profile";
+import { getProfile, getNotes, saveProfile, addNotes, buildProfileContext } from "../lib/profile";
 import TypingIndicator from "./TypingIndicator";
 import "./GroupChat.css";
 
@@ -30,7 +30,8 @@ export default function GroupChat({ onBack }) {
     setShowSummary(false);
 
     const profile = getProfile();
-    const profileContext = buildProfileContext(profile);
+    const notes = getNotes();
+    const profileContext = buildProfileContext(profile, notes);
     const prompt = `Someone asked: "${text}"\n\nGive your honest take in 2-3 sentences max. Be direct, stay in character, don't hedge.`;
 
     // Seed all three as typing immediately
@@ -105,7 +106,8 @@ export default function GroupChat({ onBack }) {
         body: JSON.stringify({ conversation: convoText }),
       });
       const data = await res.json();
-      if (Object.keys(data).length > 0) saveProfile(data);
+      if (data.facts && Object.keys(data.facts).length > 0) saveProfile(data.facts);
+      if (data.notes && data.notes.length > 0) addNotes(data.notes);
     } catch {}
   }
 
