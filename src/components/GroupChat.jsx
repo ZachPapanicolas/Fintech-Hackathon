@@ -50,6 +50,7 @@ export default function GroupChat({ onBack }) {
             signal: controller.signal,
             body: JSON.stringify({
               systemPrompt: c.groupSystemPrompt + profileContext,
+              provider: c.provider,
               messages: [{ role: "user", content: prompt }],
             }),
           });

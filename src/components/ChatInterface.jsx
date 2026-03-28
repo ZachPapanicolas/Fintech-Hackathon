@@ -49,7 +49,7 @@ export default function ChatInterface({ counselor, onBack }) {
       const response = await fetch("http://localhost:3001/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ systemPrompt, messages: newMessages }),
+        body: JSON.stringify({ systemPrompt, messages: newMessages, provider: counselor.provider }),
       });
 
       const data = await response.json();
