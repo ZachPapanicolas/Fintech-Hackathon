@@ -138,8 +138,9 @@ export default function GroupChat({ onBack }) {
         <button className="back-btn" onClick={onBack}>← The Counsel</button>
         <div className="group-header-avatars">
           {counselors.map((c) => (
-            <div key={c.id} className="group-avatar"
-              style={{ backgroundPosition: c.imagePosition, "--accent": c.color }}
+            <img key={c.id} className="group-avatar"
+              src={c.image} alt={c.name}
+              style={{ "--accent": c.color }}
               title={c.name}
             />
           ))}
@@ -158,7 +159,7 @@ export default function GroupChat({ onBack }) {
         {takes.map(({ counselor, content }, i) => (
           <div key={i} className="chat-msg"
             style={{ "--accent": counselor.color, "--light": counselor.lightColor }}>
-            <div className="msg-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
+            <img className="msg-avatar" src={counselor.image} alt={counselor.name} />
             <div className="msg-body">
               <div className="msg-name">{counselor.name}</div>
               {content === null ? (

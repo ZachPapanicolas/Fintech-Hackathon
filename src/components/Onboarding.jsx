@@ -172,7 +172,7 @@ export default function Onboarding({ onComplete }) {
               className="ob-counselor-msg"
               style={{ "--accent": m.counselor.color, "--light": m.counselor.lightColor }}
             >
-              <div className="ob-avatar" style={{ backgroundPosition: m.counselor.imagePosition }} />
+              <img className="ob-avatar" src={m.counselor.image} alt={m.counselor.name} />
               <div className="ob-body">
                 <div className="ob-name">{m.counselor.name}</div>
                 <div className="ob-bubble">{m.content}</div>
@@ -186,7 +186,7 @@ export default function Onboarding({ onComplete }) {
             className="ob-counselor-msg"
             style={{ "--accent": typingCounselor.color, "--light": typingCounselor.lightColor }}
           >
-            <div className="ob-avatar" style={{ backgroundPosition: typingCounselor.imagePosition }} />
+            <img className="ob-avatar" src={typingCounselor.image} alt={typingCounselor.name} />
             <div className="ob-body">
               <div className="ob-name">{typingCounselor.name}</div>
               <TypingIndicator />

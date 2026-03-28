@@ -47,9 +47,8 @@
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background-image: url("/mascots.png");
-  background-size: 300% auto;
-  background-repeat: no-repeat;
+  object-fit: cover;
+  object-position: center 30%;
   background-color: var(--light);
   flex-shrink: 0;
   margin-top: 2px;

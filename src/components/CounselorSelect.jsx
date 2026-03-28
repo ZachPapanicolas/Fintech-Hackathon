@@ -23,10 +23,7 @@ export default function CounselorSelect({ onSelect, onGroupChat }) {
             onClick={() => onSelect(c)}
           >
             <div className="card-avatar">
-              <div
-                className="avatar-crop"
-                style={{ backgroundPosition: c.imagePosition }}
-              />
+              <img className="avatar-img" src={c.image} alt={c.name} />
             </div>
             <div className="card-body">
               <div className="card-name">{c.name}</div>

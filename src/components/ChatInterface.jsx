@@ -79,7 +79,7 @@ export default function ChatInterface({ counselor, onBack }) {
       <div className="chat-header">
         <button className="back-btn" onClick={onBack}>← The Counsel</button>
         <div className="chat-header-info">
-          <div className="chat-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
+          <img className="chat-avatar" src={counselor.image} alt={counselor.name} />
           <div>
             <div className="chat-name">{counselor.name}</div>
             <div className="chat-topic">{counselor.topic}</div>
@@ -91,14 +91,14 @@ export default function ChatInterface({ counselor, onBack }) {
         {messages.map((m, i) => (
           <div key={i} className={`message ${m.role}`}>
             {m.role === "assistant" && (
-              <div className="message-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
+              <img className="message-avatar" src={counselor.image} alt={counselor.name} />
             )}
             <div className="message-bubble">{m.content}</div>
           </div>
         ))}
         {loading && (
           <div className="message assistant">
-            <div className="message-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
+            <img className="message-avatar" src={counselor.image} alt={counselor.name} />
             <TypingIndicator />
           </div>
         )}

@@ -42,9 +42,8 @@
   width: 58px;
   height: 58px;
   border-radius: 50%;
-  background-image: url("/mascots.png");
-  background-size: 300% auto;
-  background-repeat: no-repeat;
+  object-fit: cover;
+  object-position: center 30%;
   background-color: var(--light);
   flex-shrink: 0;
 }
@@ -90,9 +89,8 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background-image: url("/mascots.png");
-  background-size: 300% auto;
-  background-repeat: no-repeat;
+  object-fit: cover;
+  object-position: center 30%;
   background-color: var(--light);
   flex-shrink: 0;
 }
