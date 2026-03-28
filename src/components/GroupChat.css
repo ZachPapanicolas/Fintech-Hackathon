@@ -162,6 +162,49 @@
   gap: 14px;
 }
 
+.takes-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  width: 100%;
+}
+
+.take-card {
+  background: white;
+  border: 1.5px solid #ebebeb;
+  border-top: 4px solid var(--accent);
+  border-radius: 14px;
+  padding: 16px 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  animation: fadeUp 0.25s ease;
+}
+
+.take-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.take-topic {
+  font-size: 0.75rem;
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.take-content {
+  font-size: 0.93rem;
+  line-height: 1.6;
+  color: #333;
+  margin: 0;
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
 .system-msg {
   text-align: center;
   color: #999;

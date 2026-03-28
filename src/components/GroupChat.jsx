@@ -4,13 +4,11 @@ import { getProfile, saveProfile, buildProfileContext } from "../lib/profile";
 import TypingIndicator from "./TypingIndicator";
 import "./GroupChat.css";
 
-const TURNS = 5;
-
 export default function GroupChat({ onBack }) {
-  const [messages, setMessages] = useState([]);
+  const [question, setQuestion] = useState(null);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
-  const [topic, setTopic] = useState(null);
+  const [takes, setTakes] = useState([]); // { counselor, content }[]
   const [summary, setSummary] = useState(null);
   const [summaryLoading, setSummaryLoading] = useState(false);
   const [showSummary, setShowSummary] = useState(false);
@@ -18,63 +16,53 @@ export default function GroupChat({ onBack }) {
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages, loading, showSummary]);
+  }, [takes, loading]);
 
-  async function startConversation() {
+  async function ask() {
     const text = input.trim();
     if (!text || loading) return;
 
-    setTopic(text);
+    setQuestion(text);
     setInput("");
     setLoading(true);
-    setMessages([]);
+    setTakes([]);
     setSummary(null);
     setShowSummary(false);
 
     const profile = getProfile();
     const profileContext = buildProfileContext(profile);
-    const conversationHistory = [];
-    const order = [...counselors].sort(() => Math.random() - 0.5);
 
-    for (let i = 0; i < TURNS; i++) {
-      const speaker = order[i % order.length];
-      const historyText = conversationHistory.map((m) => `${m.name}: ${m.content}`).join("\n");
-      const userMessage = conversationHistory.length === 0
-        ? `Someone asked the group: "${text}"\n\nYou go first. What do you think?`
-        : `Here's the conversation so far:\n\n${historyText}\n\nNow it's your turn to respond.`;
+    const prompt = `Someone asked: "${text}"\n\nGive your honest take in 2-3 sentences max. Be direct, stay in character, and don't hedge.`;
 
-      try {
-        const controller = new AbortController();
-        const timeout = setTimeout(() => controller.abort(), 30000);
-        const res = await fetch("http://localhost:3001/chat", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            systemPrompt: speaker.groupSystemPrompt + profileContext,
-            messages: [{ role: "user", content: userMessage }],
-          }),
-        });
-        clearTimeout(timeout);
-        const data = await res.json();
-        if (!data.reply) throw new Error(data.error || "No reply");
-        conversationHistory.push({ name: speaker.name, content: data.reply });
-        setMessages((prev) => [...prev, { counselor: speaker, content: data.reply }]);
-      } catch (err) {
-        console.error(`${speaker.name} failed:`, err.message);
-        const errMsg = err.name === "AbortError" ? "(timed out)" : "(couldn't reach server)";
-        conversationHistory.push({ name: speaker.name, content: errMsg });
-        setMessages((prev) => [...prev, { counselor: speaker, content: errMsg }]);
-      }
-    }
+    // Ask all three in parallel
+    const results = await Promise.all(
+      counselors.map(async (c) => {
+        try {
+          const controller = new AbortController();
+          const timeout = setTimeout(() => controller.abort(), 30000);
+          const res = await fetch("http://localhost:3001/chat", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({
+              systemPrompt: c.groupSystemPrompt + profileContext,
+              messages: [{ role: "user", content: prompt }],
+            }),
+          });
+          clearTimeout(timeout);
+          const data = await res.json();
+          return { counselor: c, content: data.reply || "..." };
+        } catch {
+          return { counselor: c, content: "..." };
+        }
+      })
+    );
 
+    setTakes(results);
     setLoading(false);
 
-    // Auto-generate David's summary
-    const convoText = conversationHistory.map((m) => `${m.name}: ${m.content}`).join("\n");
+    const convoText = results.map((r) => `${r.counselor.name}: ${r.content}`).join("\n");
     generateSummary(convoText);
-
-    // Extract profile in background
     extractProfile(convoText);
   }
 
@@ -89,7 +77,7 @@ export default function GroupChat({ onBack }) {
       const data = await res.json();
       setSummary(data.summary);
     } catch {
-      setSummary("Couldn't conjure a summary this time. Sorry!");
+      setSummary("Couldn't conjure a summary this time.");
     } finally {
       setSummaryLoading(false);
     }
@@ -104,19 +92,17 @@ export default function GroupChat({ onBack }) {
       });
       const data = await res.json();
       if (Object.keys(data).length > 0) saveProfile(data);
-    } catch {
-      // silent
-    }
+    } catch {}
   }
 
   function handleKeyDown(e) {
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
-      startConversation();
+      ask();
     }
   }
 
-  const davidReady = !loading && (summary || summaryLoading) && messages.length > 0;
+  const davidReady = !loading && !summaryLoading && summary && takes.length > 0;
 
   return (
     <div className="group-page">
@@ -124,36 +110,29 @@ export default function GroupChat({ onBack }) {
         <button className="back-btn" onClick={onBack}>← The Counsel</button>
         <div className="group-header-avatars">
           {counselors.map((c) => (
-            <div
-              key={c.id}
-              className="group-avatar"
+            <div key={c.id} className="group-avatar"
               style={{ backgroundPosition: c.imagePosition, "--accent": c.color }}
               title={c.name}
             />
           ))}
         </div>
-        <div className="group-header-title">The Counsel — Group Chat</div>
+        <div className="group-header-title">Quick Takes</div>
 
-        {/* David button */}
         {davidReady && (
-          <button
-            className={`david-btn ${showSummary ? "active" : ""}`}
-            onClick={() => setShowSummary((s) => !s)}
-            title="David's Summary"
-          >
+          <button className={`david-btn ${showSummary ? "active" : ""}`}
+            onClick={() => setShowSummary((s) => !s)} title="David's Summary">
             <div className="david-avatar" />
             <span>David</span>
           </button>
         )}
-        {(loading || summaryLoading) && messages.length > 0 && (
-          <div className="david-btn muted" title="David is writing...">
+        {(loading || summaryLoading) && takes.length > 0 && (
+          <div className="david-btn muted">
             <div className="david-avatar" />
             <span>...</span>
           </div>
         )}
       </div>
 
-      {/* David's summary panel */}
       {showSummary && summary && (
         <div className="david-panel">
           <div className="david-panel-header">
@@ -168,31 +147,47 @@ export default function GroupChat({ onBack }) {
       )}
 
       <div className="group-messages">
-        {messages.length === 0 && !loading && (
+        {!question && !loading && (
           <div className="system-msg">
-            Throw out a topic and let them hash it out. They don't always agree.
+            Ask anything — see where each of them stands.
           </div>
         )}
 
-        {topic && <div className="topic-pill">"{topic}"</div>}
-
-        {messages.map((m, i) => (
-          <div
-            key={i}
-            className="chat-msg"
-            style={{ "--accent": m.counselor.color, "--light": m.counselor.lightColor }}
-          >
-            <div className="msg-avatar" style={{ backgroundPosition: m.counselor.imagePosition }} />
-            <div className="msg-body">
-              <div className="msg-name">{m.counselor.name}</div>
-              <div className="msg-bubble">{m.content}</div>
-            </div>
-          </div>
-        ))}
+        {question && <div className="topic-pill">"{question}"</div>}
 
         {loading && (
-          <div className="typing-row">
-            <TypingIndicator />
+          <div className="takes-grid loading">
+            {counselors.map((c) => (
+              <div key={c.id} className="take-card"
+                style={{ "--accent": c.color, "--light": c.lightColor }}>
+                <div className="take-header">
+                  <div className="msg-avatar" style={{ backgroundPosition: c.imagePosition }} />
+                  <div>
+                    <div className="msg-name">{c.name}</div>
+                    <div className="take-topic">{c.topic}</div>
+                  </div>
+                </div>
+                <TypingIndicator />
+              </div>
+            ))}
+          </div>
+        )}
+
+        {takes.length > 0 && (
+          <div className="takes-grid">
+            {takes.map(({ counselor, content }) => (
+              <div key={counselor.id} className="take-card"
+                style={{ "--accent": counselor.color, "--light": counselor.lightColor }}>
+                <div className="take-header">
+                  <div className="msg-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
+                  <div>
+                    <div className="msg-name">{counselor.name}</div>
+                    <div className="take-topic">{counselor.topic}</div>
+                  </div>
+                </div>
+                <p className="take-content">{content}</p>
+              </div>
+            ))}
           </div>
         )}
 
@@ -205,12 +200,12 @@ export default function GroupChat({ onBack }) {
           value={input}
           onChange={(e) => setInput(e.target.value)}
           onKeyDown={handleKeyDown}
-          placeholder={loading ? "They're talking..." : "Give them a topic to discuss..."}
+          placeholder={loading ? "Getting their takes..." : "Ask The Counsel anything..."}
           rows={1}
           disabled={loading}
         />
-        <button className="send-btn" onClick={startConversation} disabled={!input.trim() || loading}>
-          Start
+        <button className="send-btn" onClick={ask} disabled={!input.trim() || loading}>
+          Ask
         </button>
       </div>
     </div>
