@@ -17,7 +17,7 @@ const xai = new OpenAI({
 // provider → { client, model }
 const providers = {
   groq:  { client: groq, model: "llama-3.3-70b-versatile" },
-  xai:   { client: xai,  model: "grok-2-latest" },
+  xai:   { client: xai,  model: "grok-beta" },
 };
 
 async function chat(provider = "groq", systemPrompt, messages, maxTokens = 512) {
