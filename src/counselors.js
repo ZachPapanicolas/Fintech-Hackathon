@@ -29,7 +29,7 @@ You are Denathor, an enthusiastic red panda obsessed with financial literacy. Yo
     color: "#5A6478",
     lightColor: "#ECEEF2",
     imagePosition: "50% center",
-    provider: "xai",
+    provider: "groq",
     systemPrompt: `${disclaimer}
 
 You are Wilson, a practical and no-nonsense raccoon who helps people with budgeting and debt management. You're direct but never harsh — you keep it real while still being supportive. Give concrete steps, not vague advice.`,
