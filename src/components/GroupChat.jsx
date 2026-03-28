@@ -34,15 +34,19 @@ export default function GroupChat({ onBack }) {
     const profileContext = buildProfileContext(profile, notes);
     const prompt = `Someone asked: "${text}"\n\nGive your honest take in 2-3 sentences max. Be direct, stay in character, don't hedge.`;
 
-    // Seed all three as typing immediately
-    setTakes(counselors.map((c) => ({ counselor: c, content: null })));
-
+    // Stagger each counselor appearing with typing dots
+    setTakes([]);
     const finalTakes = [];
+    const STAGGER = 1200; // ms between each counselor appearing
 
-    // Fire all three in parallel, update each as it arrives
     await Promise.all(
       counselors.map(async (c, idx) => {
+        // Wait before showing this counselor's typing indicator
+        await new Promise((r) => setTimeout(r, idx * STAGGER));
+        setTakes((prev) => [...prev, { counselor: c, content: null }]);
+
         try {
+          const typingStart = Date.now();
           const controller = new AbortController();
           const timeout = setTimeout(() => controller.abort(), 30000);
           const res = await fetch("http://localhost:3001/chat", {
@@ -58,14 +62,21 @@ export default function GroupChat({ onBack }) {
           clearTimeout(timeout);
           const data = await res.json();
           const reply = data.reply || "...";
+          // Show typing for at least 2s so it doesn't flash
+          const elapsed = Date.now() - typingStart;
+          if (elapsed < 2000) await new Promise((r) => setTimeout(r, 2000 - elapsed));
           finalTakes[idx] = { counselor: c, content: reply };
           setTakes((prev) =>
-            prev.map((t, i) => (i === idx ? { counselor: c, content: reply } : t))
+            prev.map((t, i) =>
+              t.counselor.id === c.id ? { counselor: c, content: reply } : t
+            )
           );
         } catch {
-          finalTakes[idx] = { counselor: c, content: null };
+          finalTakes[idx] = { counselor: c, content: "(no response)" };
           setTakes((prev) =>
-            prev.map((t, i) => (i === idx ? { counselor: c, content: "(no response)" } : t))
+            prev.map((t) =>
+              t.counselor.id === c.id ? { counselor: c, content: "(no response)" } : t
+            )
           );
         }
       })

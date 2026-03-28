@@ -51,7 +51,7 @@ const QUESTIONS = [
 
 // ms to "type" — scales loosely with message length
 function typingDelay(message) {
-  return Math.min(600 + message.length * 18, 2800);
+  return Math.min(1800 + message.length * 54, 8400);
 }
 
 function getCounselor(id) {
