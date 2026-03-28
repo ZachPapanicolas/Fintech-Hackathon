@@ -16,7 +16,7 @@ const xai = new OpenAI({
 
 // provider → { client, model }
 const providers = {
-  groq:  { client: groq, model: "llama-3.3-70b-versatile" },
+  groq:  { client: groq, model: "llama-3.1-8b-instant" },
   xai:   { client: xai,  model: "grok-3-mini" },
 };
 
@@ -56,7 +56,7 @@ app.post("/extract-profile", async (req, res) => {
   const { conversation } = req.body;
   try {
     const completion = await groq.chat.completions.create({
-      model: "llama-3.3-70b-versatile",
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "system",

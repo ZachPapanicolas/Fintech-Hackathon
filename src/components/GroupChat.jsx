@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { counselors } from "../counselors";
 import { getProfile, getNotes, saveProfile, addNotes, buildProfileContext } from "../lib/profile";
+import { renderBold } from "../lib/renderBold";
 import TypingIndicator from "./TypingIndicator";
 import "./GroupChat.css";
 
@@ -165,7 +166,7 @@ export default function GroupChat({ onBack }) {
               {content === null ? (
                 <TypingIndicator />
               ) : (
-                <div className="msg-bubble msg-bubble--appear">{content}</div>
+                <div className="msg-bubble msg-bubble--appear">{renderBold(content)}</div>
               )}
             </div>
           </div>

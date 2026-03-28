@@ -7,7 +7,15 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['mascots.png', 'david-sheet.png'],
+      includeAssets: ['mascots.png', 'david-sheet.png', 'denathor.png', 'wilson.png', 'sword.png'],
+      workbox: {
+        runtimeCaching: [
+          {
+            urlPattern: /^http:\/\/localhost:3001\/.*/,
+            handler: 'NetworkOnly',
+          },
+        ],
+      },
       manifest: {
         name: 'The Counsel',
         short_name: 'The Counsel',

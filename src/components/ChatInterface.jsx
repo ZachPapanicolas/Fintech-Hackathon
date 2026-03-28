@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { getProfile, getNotes, saveProfile, addNotes, buildProfileContext } from "../lib/profile";
+import { renderBold } from "../lib/renderBold";
 import TypingIndicator from "./TypingIndicator";
 import "./ChatInterface.css";
 
@@ -93,7 +94,7 @@ export default function ChatInterface({ counselor, onBack }) {
             {m.role === "assistant" && (
               <img className="message-avatar" src={counselor.image} alt={counselor.name} />
             )}
-            <div className="message-bubble">{m.content}</div>
+            <div className="message-bubble">{m.role === "assistant" ? renderBold(m.content) : m.content}</div>
           </div>
         ))}
         {loading && (
