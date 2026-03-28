@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { getProfile, saveProfile, buildProfileContext } from "../lib/profile";
+import TypingIndicator from "./TypingIndicator";
 import "./ChatInterface.css";
 
 export default function ChatInterface({ counselor, onBack }) {
@@ -97,9 +98,7 @@ export default function ChatInterface({ counselor, onBack }) {
         {loading && (
           <div className="message assistant">
             <div className="message-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
-            <div className="message-bubble typing">
-              <span /><span /><span />
-            </div>
+            <TypingIndicator />
           </div>
         )}
         <div ref={bottomRef} />

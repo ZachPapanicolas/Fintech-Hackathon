@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { saveProfile } from "../lib/profile";
 import { counselors } from "../counselors";
+import TypingIndicator from "./TypingIndicator";
 import "./Onboarding.css";
 
 const QUESTIONS = [
@@ -187,9 +188,7 @@ export default function Onboarding({ onComplete }) {
             <div className="ob-avatar" style={{ backgroundPosition: typingCounselor.imagePosition }} />
             <div className="ob-body">
               <div className="ob-name">{typingCounselor.name}</div>
-              <div className="ob-bubble ob-typing">
-                <span /><span /><span />
-              </div>
+              <TypingIndicator />
             </div>
           </div>
         )}

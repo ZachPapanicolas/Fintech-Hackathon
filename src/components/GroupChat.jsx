@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { counselors } from "../counselors";
 import { getProfile, saveProfile, buildProfileContext } from "../lib/profile";
+import TypingIndicator from "./TypingIndicator";
 import "./GroupChat.css";
 
 const TURNS = 5;
@@ -184,7 +185,7 @@ export default function GroupChat({ onBack }) {
 
         {loading && (
           <div className="typing-row">
-            <div className="typing"><span /><span /><span /></div>
+            <TypingIndicator />
           </div>
         )}
 
