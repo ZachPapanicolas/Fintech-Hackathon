@@ -5,6 +5,54 @@
   background: #faf9f7;
 }
 
+.group-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.group-main {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+/* David sidebar */
+.david-sidebar {
+  width: 260px;
+  flex-shrink: 0;
+  background: #f5f0ff;
+  border-left: 1.5px solid #c9b8f0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px 16px;
+  overflow-y: auto;
+}
+
+.david-sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.david-empty {
+  font-size: 0.82rem;
+  color: #a990d8;
+  font-style: italic;
+  line-height: 1.5;
+  margin: 0;
+}
+
+.david-summary {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: #3d2a7a;
+  white-space: pre-wrap;
+  animation: fadeUp 0.3s ease;
+}
+
 .group-header {
   display: flex;
   align-items: center;
