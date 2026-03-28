@@ -148,66 +148,68 @@ export default function GroupChat({ onBack }) {
 
       </div>
 
-      <div className="group-body">
-        {/* Main chat */}
-        <div className="group-main">
-          <div className="group-messages">
-            {!question && !asking && (
-              <div className="system-msg">Ask anything — see where each of them stands.</div>
-            )}
+      <div className="group-messages">
+        {!question && !asking && (
+          <div className="system-msg">Ask anything — see where each of them stands.</div>
+        )}
 
-            {question && <div className="topic-pill">"{question}"</div>}
+        {question && <div className="topic-pill">"{question}"</div>}
 
-            {takes.map(({ counselor, content }, i) => (
-              <div key={i} className="chat-msg"
-                style={{ "--accent": counselor.color, "--light": counselor.lightColor }}>
-                <div className="msg-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
-                <div className="msg-body">
-                  <div className="msg-name">{counselor.name}</div>
-                  {content === null ? (
-                    <TypingIndicator />
-                  ) : (
-                    <div className="msg-bubble msg-bubble--appear">{content}</div>
-                  )}
-                </div>
-              </div>
-            ))}
-
-            <div ref={bottomRef} />
-          </div>
-
-          <div className="group-input-area">
-            <textarea
-              className="chat-input"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder={asking ? "Waiting on them..." : "Ask The Counsel anything..."}
-              rows={1}
-              disabled={asking}
-            />
-            <button className="send-btn" onClick={ask} disabled={!input.trim() || asking}>
-              Ask
-            </button>
-          </div>
-        </div>
-
-        {/* David sidebar */}
-        <div className="david-sidebar">
-          <div className="david-sidebar-header">
-            <div className="david-avatar large" />
-            <div>
-              <div className="david-name">David</div>
-              <div className="david-title">Scribe Mouse</div>
+        {takes.map(({ counselor, content }, i) => (
+          <div key={i} className="chat-msg"
+            style={{ "--accent": counselor.color, "--light": counselor.lightColor }}>
+            <div className="msg-avatar" style={{ backgroundPosition: counselor.imagePosition }} />
+            <div className="msg-body">
+              <div className="msg-name">{counselor.name}</div>
+              {content === null ? (
+                <TypingIndicator />
+              ) : (
+                <div className="msg-bubble msg-bubble--appear">{content}</div>
+              )}
             </div>
           </div>
-          {!summary && !summaryLoading && (
-            <p className="david-empty">David's notes will appear here after they respond.</p>
-          )}
-          {summaryLoading && <TypingIndicator />}
-          {summary && <div className="david-summary">{summary}</div>}
-        </div>
+        ))}
+
+        <div ref={bottomRef} />
       </div>
+
+      <div className="group-input-area">
+        <textarea
+          className="chat-input"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onKeyDown={handleKeyDown}
+          placeholder={asking ? "Waiting on them..." : "Ask The Counsel anything..."}
+          rows={1}
+          disabled={asking}
+        />
+        <button className="send-btn" onClick={ask} disabled={!input.trim() || asking}>
+          Ask
+        </button>
+      </div>
+
+      {/* David floating bubble */}
+      {(summaryLoading || summary) && (
+        <div className={`david-bubble ${showSummary ? "open" : ""}`}>
+          <button className="david-bubble-toggle" onClick={() => setShowSummary((s) => !s)}>
+            <div className="david-avatar" />
+            {!showSummary && <span className="david-ping" />}
+          </button>
+          {showSummary && (
+            <div className="david-popup">
+              <div className="david-popup-header">
+                <div className="david-avatar large" />
+                <div>
+                  <div className="david-name">David</div>
+                  <div className="david-title">Scribe Mouse</div>
+                </div>
+                <button className="david-close" onClick={() => setShowSummary(false)}>✕</button>
+              </div>
+              {summaryLoading ? <TypingIndicator /> : <div className="david-summary">{summary}</div>}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
